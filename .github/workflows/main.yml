@@ -1,0 +1,36 @@
+name: Sanity Dev Thrive Local Workflow
+
+on:
+ pull_request:
+ push:
+   branches:
+     - main
+  # schedule:
+  #   - cron: '0 1 * * *'
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '23'
+
+      - name: Install Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
+          sudo apt-get install -f
+
+      - name: Set up Maven
+        run: sudo apt-get install -y maven
+
+      - name: Execute Script
+        run: |
+          mvn test -DdriverConfig=WebRemote -D"cucumber.filter.tags=@LoginPositive"
